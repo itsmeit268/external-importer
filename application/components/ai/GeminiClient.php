@@ -19,8 +19,7 @@ class GeminiClient extends AiClient
 {
     public function getChatUrl()
     {
-        $type = AiConfig::getInstance()->option('model') === 'gemini-1.5-flash' ? 'flash' : 'pro';
-        return 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-'.$type.':generateContent?key='.$this->api_key;
+        return 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key='.$this->api_key;
     }
 
     public function getHeaders()
@@ -44,24 +43,15 @@ class GeminiClient extends AiClient
                 )
             ),
             "generationConfig" => array(
-                "temperature" => 1.05,
+                "temperature" => 1,
                 "topK" => 64,
                 "topP" => 0.95,
                 "maxOutputTokens" => 8192,
                 "responseMimeType" => "text/plain"
             )
         );
-        $data = [
-            'contents' => [
-                'parts' => [
-                    'text' => $prompt
-                ]
-            ]
-        ];
 
-
-        return $data;
-//        return array_merge($payload, $params);
+        return $payload;
     }
 
     public function getContent($response)

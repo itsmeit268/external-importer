@@ -31,14 +31,6 @@ abstract class AiClient
 	public static function models()
 	{
 		$models = array(
-            'gemini-1.5-pro' => array(
-                'name' => 'GeminiAI: 1.5 Pro' . ' ' . __('(recommended)', 'external-importer'),
-                'class' => GeminiClient::class,
-            ),
-            'gemini-1.5-flash' => array(
-                'name' => 'GeminiAI: 1.5 Flash',
-                'class' => GeminiClient::class,
-            ),
 			'gpt-4o-mini' => array(
 				'name' => 'OpenAI: gpt-4o-mini' . ' ' . __('(recommended)', 'external-importer'),
 				'class' => OpenAiClient::class,
@@ -75,7 +67,11 @@ abstract class AiClient
 			'claude-3-opus-20240229' => array(
 				'name' => 'Claude 3: opus',
 				'class' => ClaudeClient::class,
-			)
+			),
+            'gemini-1.5-pro' => array(
+                'name' => 'Gemini 1.5 Pro',
+                'class' => GeminiClient::class,
+            )
 		);
 
 		$models = \apply_filters('ei_ai_models', $models);

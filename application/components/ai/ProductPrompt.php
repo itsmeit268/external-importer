@@ -52,6 +52,9 @@ class ProductPrompt extends Prompt
     public function shortenProductTitle()
     {
         $prompt = "Shorten the product title to 5-7 words: \"%title%\".";
+        if ($this->isGeminiModel()) {
+            $prompt = "Shorten the product title to 5-7 words: \"%title%\", only return a title, language: " .$this->getLanguage();
+        }
         return ContentHelper::prepareProductTitle($this->query($prompt));
     }
 
@@ -76,6 +79,10 @@ class ProductPrompt extends Prompt
     public function generateReviewProductTitle()
     {
         $prompt = "Write a title for review post about \"%title%\". Keep it short.\n\nTitle:";
+        if ($this->isGeminiModel()) {
+            $prompt = "Write a title for review post about \"%title%\". Keep it short, only return a title, language: " .$this->getLanguage();
+            return sanitize_text_field($this->query($prompt));
+        }
         return ContentHelper::prepareProductTitle($this->query($prompt));
     }
 
@@ -93,6 +100,9 @@ class ProductPrompt extends Prompt
         $prompt = "Rewrite the following product description of the product titled \"%title%\". Format everything in Markdown.";
         $prompt .= "\n\nProduct description:\n%description%";
         $prompt .= "\n\Rewrited description:";
+        if ($this->isGeminiModel()) {
+            $prompt .= 'Please write a more professional and natural product description "%description%", .Language: ' .$this->getLanguage();
+        }
         return ContentHelper::prepareMarkdown($this->query($prompt));
     }
 
@@ -245,7 +255,7 @@ class ProductPrompt extends Prompt
 
         $prompt .= "Do not use the phrase \"I recently purchased\".";
 
-        $prompt .= " Format in html.";
+        $prompt .= " Format in html.Language: " .$this->getLanguage();
         $prompt .= "\n\n\n<html><body>[YOUR REVIEW TEXT]<body></html>";
 
         return ContentHelper::prepareArticle($this->query($prompt), $this->product_new->title);
@@ -439,4 +449,16 @@ class ProductPrompt extends Prompt
     {
         return $this->customPromptDescription(4);
     }
+
+    public function getLanguage()
+    {
+        return AiConfig::getInstance()->option('language');
+    }
+
+    public function isGeminiModel()
+    {
+        $model = AiConfig::getInstance()->option('model');
+        return strpos($model, 'gemini') !== false;
+    }
+
 }
