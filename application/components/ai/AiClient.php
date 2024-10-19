@@ -31,6 +31,14 @@ abstract class AiClient
 	public static function models()
 	{
 		$models = array(
+            'gemini-1.5-pro' => array(
+                'name' => 'GeminiAI: 1.5 Pro' . ' ' . __('(recommended)', 'external-importer'),
+                'class' => GeminiClient::class,
+            ),
+            'gemini-1.5-flash' => array(
+                'name' => 'GeminiAI: 1.5 Flash',
+                'class' => GeminiClient::class,
+            ),
 			'gpt-4o-mini' => array(
 				'name' => 'OpenAI: gpt-4o-mini' . ' ' . __('(recommended)', 'external-importer'),
 				'class' => OpenAiClient::class,
@@ -67,8 +75,7 @@ abstract class AiClient
 			'claude-3-opus-20240229' => array(
 				'name' => 'Claude 3: opus',
 				'class' => ClaudeClient::class,
-			),
-
+			)
 		);
 
 		$models = \apply_filters('ei_ai_models', $models);
@@ -282,25 +289,25 @@ abstract class AiClient
 
 	protected function sendRequest($url, array $payload, array $headers = array())
 	{
-		$curl_info = array(
-			CURLOPT_URL            => $url,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_ENCODING       => '',
-			CURLOPT_MAXREDIRS      => 5,
-			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_TIMEOUT        => self::TIMEOUT,
-			CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
-			CURLOPT_CUSTOMREQUEST  => 'POST',
-			CURLOPT_POSTFIELDS     => json_encode($payload),
-			CURLOPT_HTTPHEADER     => $headers,
-		);
+        $curl_info = array(
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 5,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT        => self::TIMEOUT,
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => $headers,
+        );
 
-		$curl = curl_init();
-		curl_setopt_array($curl, $curl_info);
-		$response = curl_exec($curl);
-		$this->curl_info = curl_getinfo($curl);
-		curl_close($curl);
-
+        $curl = curl_init();
+        curl_setopt_array($curl, $curl_info);
+        $response = curl_exec($curl);
+        $this->curl_info = curl_getinfo($curl);
+        curl_close($curl);
 		return $response;
 	}
 }

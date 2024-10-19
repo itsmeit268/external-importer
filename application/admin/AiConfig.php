@@ -52,7 +52,7 @@ class AiConfig extends Config
             ),
             'openai_key' => array(
                 'title' => 'AI API key' . ' <span style="color:red;">*</span>',
-                'description' => sprintf(__('Add your <a target="_blank" href="%s" href="">OpenAI</a> or <a target="_blank" href="%s" href="">Claude</a> API key according to the AI model you have selected.', 'external-importer'), 'https://platform.openai.com/api-keys', 'https://console.anthropic.com/settings/keys')
+                'description' => sprintf(__('Add your <a target="_blank" href="%s" href="">OpenAI</a> or <a target="_blank" href="%s" href="">Claude</a> or <a target="_blank" href="https://aistudio.google.com/app/apikey">Gemini Pro</a> API key according to the AI model you have selected.', 'external-importer'), 'https://platform.openai.com/api-keys', 'https://console.anthropic.com/settings/keys')
                     . '<br>' . __('Please ensure to top up your OpenAI balance by at least $5 to access GPT-4o-mini and increase your API request limits per minute!', 'external-importer'),
                 'callback' => array($this, 'render_password'),
                 'default' => '',

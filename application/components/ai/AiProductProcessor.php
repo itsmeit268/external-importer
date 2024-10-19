@@ -21,13 +21,13 @@ defined('\ABSPATH') || exit;
 
 class AiProductProcessor
 {
-
     public static function maybeApplayAi(Product $product)
     {
         if (!$api_key = AiConfig::getInstance()->option('openai_key'))
             return $product;
 
         $title_generator = AiConfig::getInstance()->option('title_generator');
+
         $description_generator = AiConfig::getInstance()->option('description_generator');
         $short_description_generator = AiConfig::getInstance()->option('short_description_generator');
         $reviews_generator = AiConfig::getInstance()->option('reviews_generator');
@@ -49,6 +49,8 @@ class AiProductProcessor
         $prompt->setLang($lang);
         $prompt->setTemperature($temperature);
 
+
+
         if (\ExternalImporter\application\Plugin::isDevEnvironment())
             mt_srand(12345678);
 
@@ -66,6 +68,7 @@ class AiProductProcessor
             'prompt4' => 'customPromptTitle4',
         );
 
+
         if ($title_generator && isset($title_methods[$title_generator]))
         {
             $method = $title_methods[$title_generator];
@@ -77,7 +80,7 @@ class AiProductProcessor
                 }
                 catch (\Exception $e)
                 {
-                    throw new \Exception('OpenAI: Title generation error: ' . $e->getMessage());
+                    throw new \Exception('AI Write: Title generation error: ' . $e->getMessage());
                 }
             }
         }
@@ -113,10 +116,12 @@ class AiProductProcessor
                 }
                 catch (\Exception $e)
                 {
-                    throw new \Exception('OpenAI: Description generation error: ' . $e->getMessage());
+                    throw new \Exception('AI Write: Description generation error: ' . $e->getMessage());
                 }
             }
         }
+
+
 
         $short_description_methods = array(
             'summarize' => 'summarizeProductDescription',
@@ -139,7 +144,7 @@ class AiProductProcessor
                 }
                 catch (\Exception $e)
                 {
-                    throw new \Exception('OpenAI: Short description generation error: ' . $e->getMessage());
+                    throw new \Exception('AI Write: Short description generation error: ' . $e->getMessage());
                 }
             }
         }
@@ -167,7 +172,7 @@ class AiProductProcessor
                     }
                     catch (\Exception $e)
                     {
-                        throw new \Exception('OpenAI: Reviews generation error: ' . $e->getMessage());
+                        throw new \Exception('AI Write: Reviews generation error: ' . $e->getMessage());
                     }
                 }
             }
