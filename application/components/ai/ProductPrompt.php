@@ -395,6 +395,7 @@ class ProductPrompt extends Prompt
         $prompt .= ContentHelper::htmlToText($review);
 
         $prompt .= "\n\nInclude the review only. Omit any additional explanations.";
+        $prompt .= $this->isGeminiModel() ? ' Language: ' . $this->getLanguage() : '';
         $prompt .= "\n\nReview text:";
 
         return ContentHelper::prepareMarkdown($this->query($prompt));
@@ -406,6 +407,7 @@ class ProductPrompt extends Prompt
         $prompt .= "\n\n";
         $prompt .= ContentHelper::htmlToText($review);
         $prompt .= "\n\nInclude the review only. Omit any additional explanations.";
+        $prompt .= $this->isGeminiModel() ? ' Language: ' . $this->getLanguage() : '';
         $prompt .= "\n\nRewrited review:";
 
         return ContentHelper::prepareMarkdown($this->query($prompt));
