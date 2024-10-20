@@ -121,8 +121,6 @@ class AiProductProcessor
             }
         }
 
-
-
         $short_description_methods = array(
             'summarize' => 'summarizeProductDescription',
             'bullet_points' => 'bulletPointsProductDescription',

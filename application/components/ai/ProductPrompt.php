@@ -89,6 +89,10 @@ class ProductPrompt extends Prompt
     public function generateHowToUseTitle()
     {
         $prompt = "Write a title for how to use post about \"%title%\". Keep it short.\n\nTitle:";
+        if ($this->isGeminiModel()) {
+            $prompt = "Write a title for how to use post about \"%title%\". Keep it short, only return a title, language: " .$this->getLanguage();
+            return sanitize_text_field($this->query($prompt));
+        }
         return ContentHelper::prepareProductTitle($this->query($prompt));
     }
 
@@ -97,14 +101,17 @@ class ProductPrompt extends Prompt
         if (!$this->product->description)
             return '';
 
-        $prompt = "Rewrite the following product description of the product titled \"%title%\". Format everything in Markdown.";
-        $prompt .= "\n\nProduct description:\n%description%";
-        $prompt .= "\n\Rewrited description:";
-        if ($this->isGeminiModel()) {
-            $prompt .= 'Please write a more professional and natural product description "%description%", .Language: ' .$this->getLanguage();
-        }
+//        if ($this->isGeminiModel()) {
+//            $prompt = 'Please write a more professional and natural product description: "'.$this->product->description.'". Format everything in Markdown. Language: ' .$this->getLanguage();
+//        } else {
+            $prompt = "Rewrite the following product description of the product titled \"%title%\". Format everything in Markdown.";
+            $prompt .= "\n\nProduct description:\n%description%";
+            $prompt .= "\n\Rewrited description:";
+//        }
+
         return ContentHelper::prepareMarkdown($this->query($prompt));
     }
+
 
     public function paraphraseProductDescription()
     {
@@ -147,9 +154,13 @@ class ProductPrompt extends Prompt
         $prompt = "Summarize the product description below in bullet points list. Answer from 5 to 8 Bullet points.";
         $prompt .= " Format the bullet points list into a plain text list.";
         $prompt .= "\nProduct title: %title%.";
-        $prompt .= "\nProduct description: %description%";
-        if ($this->product->features)
+        $prompt .= "\nProduct description: %description%. ";
+
+        if ($this->product->features) {
             $prompt .= "\nProduct specifications:\n%features%";
+        }
+
+        $prompt .= "\nFormat everything in Markdown. " .($this->isGeminiModel() ? 'Language: '. $this->getLanguage() : '');
         $prompt .= "\n\nBullet points:";
         if (!$list = ContentHelper::listToArray($this->query($prompt)))
             return array();
@@ -210,7 +221,7 @@ class ProductPrompt extends Prompt
         else
             $prompt .= ". ";
 
-        $prompt .= "Format in html. Do not include CSS styles.";
+        $prompt .= "Format in html. Do not include CSS styles." . ($this->isGeminiModel() ? 'Language: '. $this->getLanguage() : '');
         $prompt .= "\n\n\n<html><body>[ARTICLE TEXT]<body></html>";
 
         return ContentHelper::prepareArticle($this->query($prompt), $this->product_new->title);
@@ -255,7 +266,7 @@ class ProductPrompt extends Prompt
 
         $prompt .= "Do not use the phrase \"I recently purchased\".";
 
-        $prompt .= " Format in html.Language: " .$this->getLanguage();
+        $prompt .= " Format in html." . ($this->isGeminiModel() ? 'Language: '. $this->getLanguage() : '');
         $prompt .= "\n\n\n<html><body>[YOUR REVIEW TEXT]<body></html>";
 
         return ContentHelper::prepareArticle($this->query($prompt), $this->product_new->title);
@@ -270,7 +281,7 @@ class ProductPrompt extends Prompt
             $prompt .= "\n\nProduct features:\n%features%";
 
         $prompt .= "\n\nWrite an instruction of How to use this product for beginners. ";
-        $prompt .= "Add subheadings. Use lists. Format in html. Do not include CSS styles.";
+        $prompt .= "Add subheadings. Use lists. Format in html. Do not include CSS styles." .($this->isGeminiModel() ? 'Language: '. $this->getLanguage() : '');
         $prompt .= "\n\n\n<html><body>[HOW TO USE]<body></html>";
 
         return ContentHelper::prepareArticle($this->query($prompt), $this->product_new->title);

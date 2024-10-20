@@ -40,6 +40,7 @@ class Prompt
     {
         $params = $this->prepareParams($params, $prompt);
         $prompt = PromptHelper::build($prompt, $params);
+
         if ($this->lang)
             $system = sprintf('Make sure you answer in %s!', $this->lang);
 
@@ -47,11 +48,10 @@ class Prompt
             $ai_params['temperature'] = $this->temperature;
 
         $content = $this->client->query($prompt, $system, $ai_params);
-
         $content = ContentHelper::fixAiResponse($content);
+
         if (ContentHelper::isAiGenerated($content))
             return '';
-
         return $content;
     }
 

@@ -71,6 +71,10 @@ abstract class AiClient
             'gemini-1.5-pro' => array(
                 'name' => 'Gemini 1.5 Pro',
                 'class' => GeminiClient::class,
+            ),
+            'gemini-1.5-flash' => array(
+                'name' => 'Gemini 1.5 Flash',
+                'class' => GeminiClient::class,
             )
 		);
 

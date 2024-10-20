@@ -19,7 +19,8 @@ class GeminiClient extends AiClient
 {
     public function getChatUrl()
     {
-        return 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key='.$this->api_key;
+        $type = AiConfig::getInstance()->option('model') === 'gemini-1.5-flash' ? 'flash' : 'pro';
+        return 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-'.$type.':generateContent?key='.$this->api_key;
     }
 
     public function getHeaders()
