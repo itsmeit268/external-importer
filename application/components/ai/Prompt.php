@@ -52,6 +52,7 @@ class Prompt
 
         if (ContentHelper::isAiGenerated($content))
             return '';
+
         return $content;
     }
 

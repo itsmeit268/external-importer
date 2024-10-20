@@ -40,12 +40,20 @@ class ProductPrompt extends Prompt
     public function rephraseProductTitle()
     {
         $prompt = "Rephrase the product title: \"%title%\".";
+        if ($this->isGeminiModel()) {
+            $prompt = "Rephrase the product title: \"%title%\", return only a title as text, language: " .$this->getLanguage();
+            return sanitize_text_field($this->query($prompt));
+        }
         return ContentHelper::prepareProductTitle($this->query($prompt));
     }
 
     public function translateProductTitle()
     {
         $prompt = "Translate the product title into %lang%: \"%title%\".";
+        if ($this->isGeminiModel()) {
+            $prompt = "Translate the product title into %lang%: \"%title%\", return only a title as text";
+            return sanitize_text_field($this->query($prompt));
+        }
         return ContentHelper::prepareProductTitle($this->query($prompt));
     }
 
@@ -53,34 +61,48 @@ class ProductPrompt extends Prompt
     {
         $prompt = "Shorten the product title to 5-7 words: \"%title%\".";
         if ($this->isGeminiModel()) {
-            $prompt = "Shorten the product title to 5-7 words: \"%title%\", only return a title, language: " .$this->getLanguage();
+            $prompt = "Shorten the product title to 5-7 words: \"%title%\",return only a title as text, language: " .$this->getLanguage();
+            return sanitize_text_field($this->query($prompt));
         }
         return ContentHelper::prepareProductTitle($this->query($prompt));
     }
 
     public function generateQuestionProductTitle()
     {
-        $prompt = "Write a list of 5 questions related to the product \"%title%\".\n\nQuestions list:";
-        $titles = ContentHelper::listToArray($this->query($prompt));
-        shuffle($titles);
-        $title = reset($titles);
-        return ContentHelper::prepareProductTitle($title);
+        if ($this->isGeminiModel()) {
+            $prompt = "Please rephrase the title \"%title%\" as a question ,return only a title as text, language: " .$this->getLanguage();
+            $productTitle = sanitize_text_field($this->query($prompt));
+        } else {
+            $prompt = "Write a list of 5 questions related to the product \"%title%\".\n\nQuestions list:";
+            $titles = ContentHelper::listToArray($this->query($prompt));
+            shuffle($titles);
+            $title = reset($titles);
+            $productTitle = ContentHelper::prepareProductTitle($title);
+        }
+
+        return $productTitle;
     }
 
     public function generateGuideProductTitle()
     {
-        $prompt = "Write a list of 5 titles for buying guide about the product \"%title%\".\n\nTitles:";
-        $titles = ContentHelper::listToArray($this->query($prompt));
-        shuffle($titles);
-        $title = reset($titles);
-        return ContentHelper::prepareProductTitle($title);
+        if ($this->isGeminiModel()) {
+            $prompt = "Generate a buyer's guide title \"%title%\", return only a title as text, language: " .$this->getLanguage();
+            $productTitle = sanitize_text_field($this->query($prompt));
+        } else {
+            $prompt = "Write a list of 5 titles for buying guide about the product \"%title%\".\n\nTitles:";
+            $titles = ContentHelper::listToArray($this->query($prompt));
+            shuffle($titles);
+            $title = reset($titles);
+            $productTitle = ContentHelper::prepareProductTitle($title);
+        }
+        return $productTitle;
     }
 
     public function generateReviewProductTitle()
     {
         $prompt = "Write a title for review post about \"%title%\". Keep it short.\n\nTitle:";
         if ($this->isGeminiModel()) {
-            $prompt = "Write a title for review post about \"%title%\". Keep it short, only return a title, language: " .$this->getLanguage();
+            $prompt = "Write a title for a review post about \"%title%\". Keep it short, return only a title as text. Language: " . $this->getLanguage();
             return sanitize_text_field($this->query($prompt));
         }
         return ContentHelper::prepareProductTitle($this->query($prompt));
@@ -90,7 +112,7 @@ class ProductPrompt extends Prompt
     {
         $prompt = "Write a title for how to use post about \"%title%\". Keep it short.\n\nTitle:";
         if ($this->isGeminiModel()) {
-            $prompt = "Write a title for how to use post about \"%title%\". Keep it short, only return a title, language: " .$this->getLanguage();
+            $prompt = "Write a title for how to use post about \"%title%\". Keep it short, return only a title as text. language: " .$this->getLanguage();
             return sanitize_text_field($this->query($prompt));
         }
         return ContentHelper::prepareProductTitle($this->query($prompt));
@@ -101,13 +123,10 @@ class ProductPrompt extends Prompt
         if (!$this->product->description)
             return '';
 
-//        if ($this->isGeminiModel()) {
-//            $prompt = 'Please write a more professional and natural product description: "'.$this->product->description.'". Format everything in Markdown. Language: ' .$this->getLanguage();
-//        } else {
-            $prompt = "Rewrite the following product description of the product titled \"%title%\". Format everything in Markdown.";
-            $prompt .= "\n\nProduct description:\n%description%";
-            $prompt .= "\n\Rewrited description:";
-//        }
+        $prompt = "Rewrite the following product description of the product titled \"%title%\". Format everything in Markdown. ";
+        $prompt .= $this->isGeminiModel() ? ' Language: ' . $this->getLanguage() : '';
+        $prompt .= "\n\nProduct description:\n%description%";
+        $prompt .= "\n\Rewrited description:";
 
         return ContentHelper::prepareMarkdown($this->query($prompt));
     }
@@ -118,7 +137,8 @@ class ProductPrompt extends Prompt
         if (!$this->product->description)
             return '';
 
-        $prompt = "Paraphrase the following product description of the product titled \"%title%\". Format everything in Markdown.";
+        $prompt = "Paraphrase the following product description of the product titled \"%title%\". Format everything in Markdown." ;
+        $prompt .= $this->isGeminiModel() ? ' Language: ' . $this->getLanguage() : '';
         $prompt .= "\n\nProduct description:\n%description%";
         $prompt .= "\n\Paraphrased description:";
         return ContentHelper::prepareMarkdown($this->query($prompt));
@@ -128,11 +148,15 @@ class ProductPrompt extends Prompt
     {
         if (!$this->product->description)
             return '';
-
-        $prompt = "Save HTML fomatting in answer. Translate to %lang% the product description below:";
-        $prompt .= "\n%description_html%";
-
-        return ContentHelper::prepareArticle($this->query($prompt));
+        if ($this->isGeminiModel()) {
+            $prompt = "Translate to %lang% the product description below:\n";
+            $prompt .= "%description_html%\n, Language: " .$this->getLanguage();
+            return ContentHelper::prepareMarkdown($this->query($prompt));
+        } else {
+            $prompt = "Save HTML fomatting in answer. Translate to %lang% the product description below:";
+            $prompt .= "\n%description_html%";
+            return ContentHelper::prepareArticle($this->query($prompt));
+        }
     }
 
     public function summarizeProductDescription()
@@ -141,6 +165,7 @@ class ProductPrompt extends Prompt
             return '';
 
         $prompt = "Summarize the following product description of the product titled \"%title%\". Format everything in Markdown.";
+        $prompt .= $this->isGeminiModel() ? ' Language: ' . $this->getLanguage() : '';
         $prompt .= "\n\nProduct description:\n%description%";
         $prompt .= "\n\Summarized description:";
         return ContentHelper::prepareMarkdown($this->query($prompt));
@@ -151,6 +176,7 @@ class ProductPrompt extends Prompt
         if (!$this->product->description && !$this->product->features)
             return '';
 
+
         $prompt = "Summarize the product description below in bullet points list. Answer from 5 to 8 Bullet points.";
         $prompt .= " Format the bullet points list into a plain text list.";
         $prompt .= "\nProduct title: %title%.";
@@ -160,10 +186,17 @@ class ProductPrompt extends Prompt
             $prompt .= "\nProduct specifications:\n%features%";
         }
 
-        $prompt .= "\nFormat everything in Markdown. " .($this->isGeminiModel() ? 'Language: '. $this->getLanguage() : '');
+        $prompt .= "\nFormat everything in Markdown.";
         $prompt .= "\n\nBullet points:";
-        if (!$list = ContentHelper::listToArray($this->query($prompt)))
+
+        if ($this->isGeminiModel()) {
+            $prompt .= "Language: " .$this->getLanguage();
+            return ContentHelper::prepareMarkdown($this->query($prompt));
+        }
+
+        if (!$list = ContentHelper::listToArray($this->query($prompt))) {
             return array();
+        }
 
         return '<ul><li>' . join('</li><li>', $list) . '</li><ul>';
     }
@@ -174,6 +207,7 @@ class ProductPrompt extends Prompt
             return '';
 
         $prompt = "Turn into advertising the following product description of the product titled \"%title%\".  Format everything in Markdown.";
+        $prompt .= $this->isGeminiModel() ? ' Language: ' . $this->getLanguage() : '';
         $prompt .= "\n\nProduct description:\n%description%";
         $prompt .= "\n\nResult:";
         return ContentHelper::prepareMarkdown($this->query($prompt));
@@ -185,6 +219,7 @@ class ProductPrompt extends Prompt
             return '';
 
         $prompt = "Write a few sentences CTA for the product \"%title%\". Format everything in Markdown.";
+        $prompt .= $this->isGeminiModel() ? ' Language: ' . $this->getLanguage() : '';
         $prompt .= "\n\nProduct description:\n%description%";
         $prompt .= "\n\nCTA:";
         return ContentHelper::prepareMarkdown($this->query($prompt));
@@ -193,6 +228,7 @@ class ProductPrompt extends Prompt
     public function craftProductDescription()
     {
         $prompt = "Craft a product description for the product \"%title%\". Format everything in Markdown.";
+        $prompt .= $this->isGeminiModel() ? ' Language: ' . $this->getLanguage() : '';
         if ($this->product->features)
             $prompt .= "\nProduct specifications:\n%features%";
         $prompt .= "\n\nProduct description:";
@@ -202,6 +238,7 @@ class ProductPrompt extends Prompt
     public function writeParagraphsProductDescription()
     {
         $prompt = "Write a few paragraphs about the product: \"%title%\". Format everything in Markdown.";
+        $prompt .= $this->isGeminiModel() ? ' Language: ' . $this->getLanguage() : '';
         if ($this->product->description)
             $prompt .= "\nProduct description: %description%";
         return ContentHelper::prepareMarkdown($this->query($prompt));
@@ -221,8 +258,13 @@ class ProductPrompt extends Prompt
         else
             $prompt .= ". ";
 
-        $prompt .= "Format in html. Do not include CSS styles." . ($this->isGeminiModel() ? 'Language: '. $this->getLanguage() : '');
-        $prompt .= "\n\n\n<html><body>[ARTICLE TEXT]<body></html>";
+        if ($this->isGeminiModel()) {
+            $prompt .= "Format everything in Markdown. Language: ". $this->getLanguage();
+            return ContentHelper::prepareMarkdown($this->query($prompt));
+        } else {
+            $prompt .= "Format in html. Do not include CSS styles." . ($this->isGeminiModel() ? 'Format everything in Markdown. Language: '. $this->getLanguage() : '');
+            $prompt .= "\n\n\n<html><body>[ARTICLE TEXT]<body></html>";
+        }
 
         return ContentHelper::prepareArticle($this->query($prompt), $this->product_new->title);
     }
@@ -237,7 +279,12 @@ class ProductPrompt extends Prompt
 
         $prompt .= "\n\nWrite a Buying Guide on how to select \"%title%\".";
 
-        $prompt .= "Divide the Guide with subheadings. Format in html. Do not include CSS styles.";
+        if ($this->isGeminiModel()) {
+            $prompt .= "Format everything in Markdown. Language: ". $this->getLanguage();
+            return ContentHelper::prepareMarkdown($this->query($prompt));
+        } else {
+            $prompt .= "Divide the Guide with subheadings. Format in html. Do not include CSS styles.";
+        }
 
         return ContentHelper::prepareArticle($this->query($prompt), $this->product_new->title);
     }
