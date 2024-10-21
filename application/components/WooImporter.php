@@ -175,13 +175,13 @@ class WooImporter
         ExternalImage::maybeSetExternalFeaturedImage($objProduct, $product->image);
 
         // brand taxonomy (Rehub feature)
-        if (WooHelper::isRehubTheme())
-        {
-            if (\apply_filters('ie_import_brand', true) && $product->manufacturer)
-                \wp_set_object_terms($product_id, \sanitize_text_field($product->manufacturer), 'store', true);
-            elseif (\apply_filters('ie_import_store', true) && $product->domain)
-                \wp_set_object_terms($product_id, \sanitize_text_field($product->domain), 'store', true);
-        }
+//        if (WooHelper::isRehubTheme())
+//        {
+//            if (\apply_filters('ie_import_brand', true) && $product->manufacturer)
+//                \wp_set_object_terms($product_id, \sanitize_text_field($product->manufacturer), 'store', true);
+//            elseif (\apply_filters('ie_import_store', true) && $product->domain)
+//                \wp_set_object_terms($product_id, \sanitize_text_field($product->domain), 'store', true);
+//        }
 
         // reviews
         if (WooConfig::getInstance()->option('import_reviews') && $product->reviews)

@@ -32,4 +32,14 @@ if (\is_admin())
     \register_deactivation_hook(__FILE__, array(\ExternalImporter\application\Installer::getInstance(), 'deactivate'));
     \register_uninstall_hook(__FILE__, array('\ExternalImporter\application\Installer', 'uninstall'));
     \add_action('init', array('\ExternalImporter\application\admin\PluginAdmin', 'getInstance'));
+} else {
+    if(is_singular('product')) {
+        add_action( 'wp_head', function() {
+            ?><style>.woostorewrap{display:none;}</style><?php
+        } );
+
+        add_action( 'wp_footer', function() {
+            ?><script type='text/javascript'>document.querySelector('.woostorewrap').classList.remove('woostorewrap');</script><?php
+        } );
+    }
 }

@@ -69,7 +69,8 @@ class ProductProcessor
             $product->reviewCount = (int) $product->reviewCount;
         if ($product->ratingValue)
             $product->ratingValue = ExtractorHelper::ratingPrepare((string)$product->ratingValue, 5, 0, 1);
-        $product->manufacturer = trim(\sanitize_text_field(html_entity_decode((string)$product->manufacturer)));
+
+//        $product->manufacturer = trim(\sanitize_text_field(html_entity_decode((string)$product->manufacturer)));
 
         $product->mpn = TextHelper::clear_utf8(\sanitize_text_field((string)$product->mpn));
         $product->gtin = TextHelper::clear_utf8(\sanitize_text_field((string)$product->gtin));
